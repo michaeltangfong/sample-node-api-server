@@ -30,8 +30,6 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
  * If you want to use require module then you have to save file with ‘.js’ extension.
  */
 const http = require('http');
-const url = require('url');
-const path = require('path');
 const host = '127.0.0.1';
 const port = 3000;
 const routes = require('./routes.json');
@@ -43,21 +41,22 @@ function tryParse(str) {
         return {};
     }
 }
-const requestListener = function (request, response) {
-    let data = '';
-    request.on('data', (chunk) => {
-        data += chunk;
-    });
-    request.on('end', (msg) => {
-        if (routes[request.url]) {
-            let requestMessage = tryParse(data);
-            require(`./handlers/${routes[request.url]}`).sendResponse(response, requestMessage);
-        }
-        else {
-            require(`./handlers/notFoundRequest`).sendResponse(response, 'Not Found');
-        }
-    });
-};
+// const requestListener = function (request: any, response: any) {
+//   let data: string = ''
+//
+//   request.on('data', (chunk: any) => {
+//     data += chunk
+//   })
+//
+//   request.on('end', (msg: any) => {
+//     if (routes[request.url]) {
+//       const requestMessage: requestMessage = tryParse(data)
+//       require(`./handlers/${routes[request.url]}`).sendResponse(response, requestMessage)
+//     } else {
+//       require('./handlers/notFoundRequest').sendResponse(response, 'Not Found')
+//     }
+//   })
+// }
 const asyncRequestListener = function (request, response) {
     var request_1, request_1_1;
     var e_1, _a;
@@ -77,10 +76,12 @@ const asyncRequestListener = function (request, response) {
             finally { if (e_1) throw e_1.error; }
         }
         const data = tryParse(Buffer.concat(buffers).toString());
-        if (routes[request.url])
+        if (routes[request.url]) {
             require(`./handlers/${routes[request.url]}`).sendResponse(response, data);
-        else
-            require(`./handlers/notFoundRequest`).sendResponse(response, 'Not Found');
+        }
+        else {
+            require('./handlers/notFoundRequest').sendResponse(response, 'Not Found');
+        }
     });
 };
 const server = http.createServer(asyncRequestListener);

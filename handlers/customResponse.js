@@ -7,20 +7,20 @@
  */
 exports.sendResponse = function (response, header, statusCode, data) {
     switch (typeof data) {
-        case "symbol":
-        case "function":
-        case "undefined":
+        case 'symbol':
+        case 'function':
+        case 'undefined':
             response.writeHead(500, {});
             response.end('Internal Server Error');
             break;
-        case "boolean":
-        case "number":
-        case "bigint":
-        case "object":
+        case 'boolean':
+        case 'number':
+        case 'bigint':
+        case 'object':
             response.writeHead(statusCode || 200, header || {});
             response.end(JSON.stringify(data));
             break;
-        case "string":
+        case 'string':
             response.writeHead(statusCode || 200, header || {});
             response.end(data);
             break;

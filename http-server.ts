@@ -13,61 +13,49 @@
  * You can directly run the code with require statement.
  * If you want to use require module then you have to save file with ‘.js’ extension.
  */
-const http = require('http');
-const url = require('url');
-const path = require('path');
+const http = require('http')
 
-const host = '127.0.0.1';
-const port = 3000;
-const routes = require('./routes.json');
+const host = '127.0.0.1'
+const port = 3000
+const routes = require('./routes.json')
 
-
-interface requestMessage {
-    name?: string;
+function tryParse (str: string) {
+  try {
+    return JSON.parse(str)
+  } catch (e) {
+    return {}
+  }
 }
 
-function tryParse(str: string) {
-    try {
-        return JSON.parse(str);
-    } catch (e) {
-        return {};
-    }
-}
-
-const requestListener = function (request: any, response: any) {
-    let data: string = '';
-
-    request.on('data', (chunk: any) => {
-        data += chunk;
-    });
-
-    request.on('end', (msg: any) => {
-        if (routes[request.url]) {
-            let requestMessage: requestMessage = tryParse(data);
-            require(`./handlers/${routes[request.url]}`).sendResponse(response, requestMessage);
-        } else {
-            require(`./handlers/notFoundRequest`).sendResponse(response, 'Not Found');
-        }
-    });
-};
+// const requestListener = function (request: any, response: any) {
+//   let data: string = ''
+//
+//   request.on('data', (chunk: any) => {
+//     data += chunk
+//   })
+//
+//   request.on('end', (msg: any) => {
+//     if (routes[request.url]) {
+//       const requestMessage: requestMessage = tryParse(data)
+//       require(`./handlers/${routes[request.url]}`).sendResponse(response, requestMessage)
+//     } else {
+//       require('./handlers/notFoundRequest').sendResponse(response, 'Not Found')
+//     }
+//   })
+// }
 
 const asyncRequestListener = async function (request: any, response: any) {
-    const buffers: Array<any> = [];
+  const buffers: Array<any> = []
 
-    for await (const chunk of request)
-        buffers.push(chunk);
+  for await (const chunk of request) { buffers.push(chunk) }
 
-    const data = tryParse(Buffer.concat(buffers).toString());
+  const data = tryParse(Buffer.concat(buffers).toString())
 
-    if (routes[request.url])
-        require(`./handlers/${routes[request.url]}`).sendResponse(response, data);
-    else
-        require(`./handlers/notFoundRequest`).sendResponse(response, 'Not Found');
-
+  if (routes[request.url]) { require(`./handlers/${routes[request.url]}`).sendResponse(response, data) } else { require('./handlers/notFoundRequest').sendResponse(response, 'Not Found') }
 }
 
-const server = http.createServer(asyncRequestListener);
+const server = http.createServer(asyncRequestListener)
 
 server.listen(port, host, () => {
-    console.log(`Server running on ${host}:${port}`);
+  console.log(`Server running on ${host}:${port}`)
 })
